@@ -9,71 +9,141 @@ const Scan = () => {
   const { skuCount, scanBarcode, lastScannedItem } = useStock();
 
   const videoRef = useRef(null);
+
   const [hasPermission, setHasPermission] = useState(null);
   const [manualInput, setManualInput] = useState('');
   const [isManualMode, setIsManualMode] = useState(false);
 
   const codeReader = useRef(new BrowserMultiFormatReader());
+
   const lastScanText = useRef('');
   const lastScanTime = useRef(0);
 
   /* =====================================================
-     SUARA SCANNER
-     Membuat bunyi "tit" tanpa file audio tambahan
+     AUDIO CONTEXT
      ===================================================== */
-  const playScanBeep = () => {
+
+  const audioContextRef = useRef(null);
+
+  /*
+   * Membuat AudioContext.
+   * AudioContext harus diaktifkan melalui interaksi pengguna
+   * agar Android / Chrome mengizinkan suara.
+   */
+  const unlockAudio = () => {
     try {
       const AudioContext =
-        window.AudioContext || window.webkitAudioContext;
+        window.AudioContext ||
+        window.webkitAudioContext;
 
       if (!AudioContext) return;
 
-      const audioContext = new AudioContext();
+      if (!audioContextRef.current) {
+        audioContextRef.current =
+          new AudioContext();
+      }
 
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
+      if (
+        audioContextRef.current.state === 'suspended'
+      ) {
+        audioContextRef.current.resume();
+      }
+    } catch (error) {
+      console.warn(
+        'Audio tidak tersedia:',
+        error
+      );
+    }
+  };
 
+
+  /* =====================================================
+     BUNYI "TIT"
+     ===================================================== */
+
+  const playScanBeep = () => {
+    try {
+      const AudioContext =
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+      if (!AudioContext) return;
+
+      /*
+       * Kalau AudioContext belum dibuat,
+       * buat terlebih dahulu.
+       */
+      if (!audioContextRef.current) {
+        audioContextRef.current =
+          new AudioContext();
+      }
+
+      const audioContext =
+        audioContextRef.current;
+
+      /*
+       * Pastikan audio tidak dalam keadaan suspended.
+       */
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+
+      const oscillator =
+        audioContext.createOscillator();
+
+      const gainNode =
+        audioContext.createGain();
+
+      /*
+       * Karakter suara scanner.
+       */
       oscillator.type = 'sine';
 
-      /* Nada bunyi scanner */
       oscillator.frequency.setValueAtTime(
-        880,
+        1000,
         audioContext.currentTime
       );
 
-      /* Volume awal */
+      /*
+       * Volume awal sangat kecil.
+       */
       gainNode.gain.setValueAtTime(
         0.001,
         audioContext.currentTime
       );
 
-      /* Bunyi naik cepat */
+      /*
+       * Naik cepat.
+       */
       gainNode.gain.exponentialRampToValueAtTime(
-        0.18,
+        0.25,
         audioContext.currentTime + 0.01
       );
 
-      /* Bunyi mati cepat */
+      /*
+       * Turun cepat sehingga terdengar:
+       *
+       * TIT
+       */
       gainNode.gain.exponentialRampToValueAtTime(
         0.001,
-        audioContext.currentTime + 0.12
+        audioContext.currentTime + 0.13
       );
 
       oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
+      gainNode.connect(
+        audioContext.destination
+      );
 
       oscillator.start();
 
       oscillator.stop(
-        audioContext.currentTime + 0.13
+        audioContext.currentTime + 0.14
       );
 
-      oscillator.onended = () => {
-        audioContext.close();
-      };
     } catch (error) {
       console.warn(
-        'Suara scanner tidak dapat dimainkan:',
+        'Gagal memainkan bunyi scanner:',
         error
       );
     }
@@ -83,6 +153,7 @@ const Scan = () => {
   /* =====================================================
      CAMERA SCANNER
      ===================================================== */
+
   useEffect(() => {
     if (skuCount === 0) {
       navigate('/import');
@@ -103,7 +174,9 @@ const Scan = () => {
         if (!isComponentMounted) {
           stream
             .getTracks()
-            .forEach(track => track.stop());
+            .forEach(track =>
+              track.stop()
+            );
 
           return;
         }
@@ -111,7 +184,8 @@ const Scan = () => {
         setHasPermission(true);
 
         if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+          videoRef.current.srcObject =
+            stream;
         }
 
         codeReader.current.decodeFromVideoDevice(
@@ -119,47 +193,64 @@ const Scan = () => {
           videoRef.current,
           (result, err) => {
 
-            if (result && isComponentMounted) {
+            if (
+              result &&
+              isComponentMounted
+            ) {
 
-              const text = result.getText();
-              const now = Date.now();
+              const text =
+                result.getText();
+
+              const now =
+                Date.now();
 
               /*
                * Mencegah barcode yang sama
-               * terbaca berkali-kali dalam 1,5 detik.
+               * terbaca berulang terlalu cepat.
                */
               if (
                 text === lastScanText.current &&
-                (now - lastScanTime.current) < 1500
+                (
+                  now -
+                  lastScanTime.current
+                ) < 1500
               ) {
                 return;
               }
 
-              lastScanText.current = text;
-              lastScanTime.current = now;
+              lastScanText.current =
+                text;
+
+              lastScanTime.current =
+                now;
 
 
               /* ===============================
-                 🔊 BUNYI "TIT"
+                 🔊 BUNYI TIT
                  =============================== */
+
               playScanBeep();
 
 
               /* ===============================
                  📳 GETAR
                  =============================== */
+
               try {
-                if (navigator.vibrate) {
+                if (
+                  navigator.vibrate
+                ) {
                   navigator.vibrate(100);
                 }
               } catch (e) {
-                // Abaikan jika vibrate tidak didukung
+                // Abaikan
               }
 
 
               /* ===============================
                  SIMPAN HASIL SCAN
                  =============================== */
+
               scanBarcode(text);
             }
           }
@@ -184,6 +275,7 @@ const Scan = () => {
 
 
     return () => {
+
       isComponentMounted = false;
 
       codeReader.current.reset();
@@ -192,9 +284,12 @@ const Scan = () => {
         videoRef.current &&
         videoRef.current.srcObject
       ) {
+
         videoRef.current.srcObject
           .getTracks()
-          .forEach(track => track.stop());
+          .forEach(track =>
+            track.stop()
+          );
       }
     };
 
@@ -209,12 +304,21 @@ const Scan = () => {
   /* =====================================================
      MANUAL SCAN
      ===================================================== */
+
   const handleManualSubmit = (e) => {
+
     e.preventDefault();
 
     if (manualInput.trim()) {
 
-      /* Bunyi juga ketika scan manual */
+      /*
+       * Aktifkan audio terlebih dahulu.
+       */
+      unlockAudio();
+
+      /*
+       * Bunyi TIT.
+       */
       playScanBeep();
 
       scanBarcode(
@@ -226,6 +330,19 @@ const Scan = () => {
   };
 
 
+  /* =====================================================
+     AKTIFKAN AUDIO SAAT PERTAMA DISENTUH
+     ===================================================== */
+
+  const handleUserInteraction = () => {
+    unlockAudio();
+  };
+
+
+  /* =====================================================
+     REDIRECT JIKA BELUM ADA DATA
+     ===================================================== */
+
   if (skuCount === 0) {
     return null;
   }
@@ -234,9 +351,13 @@ const Scan = () => {
   /* =====================================================
      UI
      ===================================================== */
+
   return (
     <div
       className="page-animate"
+      onPointerDown={
+        handleUserInteraction
+      }
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -247,16 +368,20 @@ const Scan = () => {
       {/* ===============================
           TITLE
           =============================== */}
+
       <div className="mb-4">
+
         <h1 className="page-title mb-1">
           Scan Barcode
         </h1>
+
       </div>
 
 
       {/* ===============================
-          CAMERA / SCANNER
+          CAMERA
           =============================== */}
+
       {!isManualMode && (
 
         <div
@@ -265,7 +390,8 @@ const Scan = () => {
             borderRadius: '24px',
             overflow: 'hidden',
             backgroundColor: '#000',
-            height: 'clamp(280px, 45vh, 400px)',
+            height:
+              'clamp(280px, 45vh, 400px)',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
@@ -294,7 +420,8 @@ const Scan = () => {
               />
 
               <p className="mb-2 text-white">
-                Kamera tidak tersedia atau akses ditolak.
+                Kamera tidak tersedia atau
+                akses ditolak.
               </p>
 
               <button
@@ -330,6 +457,7 @@ const Scan = () => {
 
 
               {/* Overlay */}
+
               <div
                 style={{
                   position: 'absolute',
@@ -341,6 +469,7 @@ const Scan = () => {
 
 
               {/* Scanner Frame */}
+
               <div
                 style={{
                   position: 'absolute',
@@ -348,31 +477,26 @@ const Scan = () => {
                   left: '50%',
                   transform:
                     'translate(-50%, -50%)',
-
                   width: '75%',
                   height: '140px',
-
                   border:
                     '2px solid rgba(255,255,255,0.7)',
-
                   borderRadius: '16px',
-
                   boxShadow:
                     '0 0 0 4000px rgba(0,0,0,0.4)'
                 }}
               >
 
                 {/* Red Laser */}
+
                 <div
                   style={{
                     width: '100%',
                     height: '2px',
                     backgroundColor:
                       'var(--red)',
-
                     position: 'absolute',
                     top: '50%',
-
                     boxShadow:
                       '0 0 12px var(--red)'
                   }}
@@ -382,6 +506,7 @@ const Scan = () => {
 
 
               {/* Instruction */}
+
               <div
                 style={{
                   position: 'absolute',
@@ -422,11 +547,10 @@ const Scan = () => {
 
 
       {/* ===============================
-          SWITCH CAMERA / MANUAL
+          CAMERA / MANUAL SWITCH
           =============================== */}
-      <div
-        className="mt-4 text-center"
-      >
+
+      <div className="mt-4 text-center">
 
         <button
           onClick={() =>
@@ -444,7 +568,8 @@ const Scan = () => {
             alignItems: 'center',
             gap: '8px',
             cursor: 'pointer',
-            padding: '8px 16px',
+            padding:
+              '8px 16px',
             borderRadius: '20px'
           }}
         >
@@ -468,10 +593,13 @@ const Scan = () => {
       {/* ===============================
           MANUAL INPUT
           =============================== */}
+
       {isManualMode && (
 
         <form
-          onSubmit={handleManualSubmit}
+          onSubmit={
+            handleManualSubmit
+          }
           className="mt-4"
         >
 
@@ -503,6 +631,7 @@ const Scan = () => {
       {/* ===============================
           LAST SCANNED RESULT
           =============================== */}
+
       {lastScannedItem && (
 
         <div
@@ -516,8 +645,10 @@ const Scan = () => {
           <div
             style={{
               display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
+              justifyContent:
+                'space-between',
+              alignItems:
+                'flex-start',
               marginBottom: '12px'
             }}
           >
@@ -527,8 +658,10 @@ const Scan = () => {
                 fontSize: '0.75rem',
                 color: '#1E8E3E',
                 fontWeight: '700',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
+                textTransform:
+                  'uppercase',
+                letterSpacing:
+                  '0.5px'
               }}
             >
               ✓ Berhasil Discan
@@ -536,15 +669,18 @@ const Scan = () => {
 
 
             <span
-              className={`badge ${lastScannedItem.status === 'SESUAI'
+              className={`badge ${lastScannedItem.status ===
+                  'SESUAI'
                   ? 'badge-sesuai'
-                  : lastScannedItem.status === 'KURANG'
+                  : lastScannedItem.status ===
+                    'KURANG'
                     ? 'badge-kurang'
                     : 'badge-lebih'
                 }`}
             >
               {lastScannedItem.status}{' '}
-              {lastScannedItem.selisih !== 0 &&
+              {lastScannedItem.selisih !==
+                0 &&
                 Math.abs(
                   lastScannedItem.selisih
                 )}
@@ -568,8 +704,10 @@ const Scan = () => {
           <p
             style={{
               fontSize: '0.85rem',
-              color: 'var(--text-sec)',
-              fontFamily: 'monospace'
+              color:
+                'var(--text-sec)',
+              fontFamily:
+                'monospace'
             }}
           >
             {lastScannedItem.kode}
@@ -577,10 +715,12 @@ const Scan = () => {
 
 
           {/* Statistik */}
+
           <div
             style={{
               display: 'flex',
-              justifyContent: 'space-between',
+              justifyContent:
+                'space-between',
               marginTop: '16px',
               paddingTop: '16px',
               borderTop:
@@ -589,6 +729,7 @@ const Scan = () => {
           >
 
             {/* Sistem */}
+
             <div
               style={{
                 flex: 1,
@@ -599,10 +740,13 @@ const Scan = () => {
               <p
                 style={{
                   fontSize: '11px',
-                  textTransform: 'uppercase',
-                  color: 'var(--text-sec)',
+                  textTransform:
+                    'uppercase',
+                  color:
+                    'var(--text-sec)',
                   fontWeight: '700',
-                  marginBottom: '4px'
+                  marginBottom:
+                    '4px'
                 }}
               >
                 Sistem
@@ -610,22 +754,28 @@ const Scan = () => {
 
               <p
                 style={{
-                  fontSize: '1.25rem',
+                  fontSize:
+                    '1.25rem',
                   fontWeight: '800',
-                  color: 'var(--dark)'
+                  color:
+                    'var(--dark)'
                 }}
               >
-                {lastScannedItem.stokSistem}
+                {
+                  lastScannedItem.stokSistem
+                }
               </p>
 
             </div>
 
 
             {/* Fisik */}
+
             <div
               style={{
                 flex: 1,
-                textAlign: 'center',
+                textAlign:
+                  'center',
                 borderLeft:
                   '1px solid rgba(0,0,0,0.06)',
                 borderRight:
@@ -636,10 +786,13 @@ const Scan = () => {
               <p
                 style={{
                   fontSize: '11px',
-                  textTransform: 'uppercase',
-                  color: 'var(--text-sec)',
+                  textTransform:
+                    'uppercase',
+                  color:
+                    'var(--text-sec)',
                   fontWeight: '700',
-                  marginBottom: '4px'
+                  marginBottom:
+                    '4px'
                 }}
               >
                 Fisik
@@ -647,32 +800,41 @@ const Scan = () => {
 
               <p
                 style={{
-                  fontSize: '1.25rem',
+                  fontSize:
+                    '1.25rem',
                   fontWeight: '800',
-                  color: 'var(--red)'
+                  color:
+                    'var(--red)'
                 }}
               >
-                {lastScannedItem.stokFisik}
+                {
+                  lastScannedItem.stokFisik
+                }
               </p>
 
             </div>
 
 
             {/* Selisih */}
+
             <div
               style={{
                 flex: 1,
-                textAlign: 'right'
+                textAlign:
+                  'right'
               }}
             >
 
               <p
                 style={{
                   fontSize: '11px',
-                  textTransform: 'uppercase',
-                  color: 'var(--text-sec)',
+                  textTransform:
+                    'uppercase',
+                  color:
+                    'var(--text-sec)',
                   fontWeight: '700',
-                  marginBottom: '4px'
+                  marginBottom:
+                    '4px'
                 }}
               >
                 Selisih
@@ -680,17 +842,21 @@ const Scan = () => {
 
               <p
                 style={{
-                  fontSize: '1.25rem',
+                  fontSize:
+                    '1.25rem',
                   fontWeight: '800',
                   color:
-                    lastScannedItem.selisih < 0
+                    lastScannedItem.selisih <
+                      0
                       ? '#D93025'
-                      : lastScannedItem.selisih > 0
+                      : lastScannedItem.selisih >
+                        0
                         ? '#1A73E8'
                         : '#1E8E3E'
                 }}
               >
-                {lastScannedItem.selisih > 0
+                {lastScannedItem.selisih >
+                  0
                   ? `+${lastScannedItem.selisih}`
                   : lastScannedItem.selisih}
               </p>
