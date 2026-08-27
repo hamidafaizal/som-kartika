@@ -1,25 +1,64 @@
 :root {
   --red: #E51B23;
   --dark: #17181D;
-  --bg: #F4F5F7;
-  /* Sedikit lebih abu agar efek kaca terlihat */
-  --glass: rgba(255, 255, 255, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.8);
+  --bg: #F5F5F7;
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.7);
   --text-main: #17181D;
-  --text-sec: #777777;
-  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --text-sec: #737373;
+
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 16px);
 }
 
-/* 1. MENCEGAH SCROLL HORIZONTAL */
-html,
-body {
+/* =========================================================
+   GLOBAL RESET
+   ========================================================= */
+
+html {
   width: 100%;
-  max-width: 100vw;
-  overflow-x: hidden;
-  /* Kunci mutlak agar tidak luber ke samping */
+  max-width: 100%;
+  min-width: 0;
   margin: 0;
   padding: 0;
+
+  overflow-x: hidden;
+
   box-sizing: border-box;
+}
+
+body {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  margin: 0;
+  padding: 0;
+
+  overflow-x: hidden;
+
+  box-sizing: border-box;
+
+  background-color: #EAEAEA;
+  color: var(--text-main);
+
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    system-ui,
+    sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 *,
@@ -28,62 +67,149 @@ body {
   box-sizing: inherit;
 }
 
-body {
-  background-color: #EAEAEA;
-  /* Warna luar jika dibuka di desktop */
-  color: var(--text-main);
-  font-family: 'Inter', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -webkit-tap-highlight-color: transparent;
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }
 
-/* 2. ADAPTIF UNTUK SEMUA HP */
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+
+/* =========================================================
+   ROOT
+   ========================================================= */
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  margin: 0;
+  padding: 0;
+
+  overflow-x: hidden;
+
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* =========================================================
+   APP CONTAINER
+   ========================================================= */
+
 .app-container {
   width: 100%;
-  max-width: 430px;
-  /* Batas maksimal untuk tablet/desktop, di HP akan ikut lebar layar */
-  min-height: 100vh;
-  background-color: var(--bg);
-  /* Aksen gradasi sangat halus di atas agar efek kaca bereaksi */
-  background-image: radial-gradient(circle at 50% 0%, rgba(229, 27, 35, 0.04) 0%, transparent 60%);
+  max-width: 600px;
+  min-width: 0;
+
+  margin: 0 auto;
+
+  background: var(--bg);
+
   position: relative;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+
   display: flex;
   flex-direction: column;
+
   overflow-x: hidden;
+
+  box-sizing: border-box;
 }
+
+
+/* =========================================================
+   CONTENT AREA
+   ========================================================= */
 
 .content-area {
-  flex: 1;
   width: 100%;
-  padding: 24px 20px calc(100px + var(--safe-area-bottom)) 20px;
+  max-width: 100%;
+  min-width: 0;
+
+  padding:
+    calc(24px + var(--safe-area-top)) 20px calc(110px + var(--safe-area-bottom)) 20px;
+
   display: flex;
   flex-direction: column;
+
+  overflow-x: hidden;
+
+  box-sizing: border-box;
+
+  background:
+    radial-gradient(circle at 50% 0%,
+      rgba(229, 27, 35, 0.05),
+      transparent 45%);
 }
 
-/* Typography */
-h1 {
-  font-weight: 800;
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
 
-h2 {
-  font-weight: 700;
-  font-size: 1.25rem;
-}
+/* =========================================================
+   TYPOGRAPHY
+   ========================================================= */
 
+h1,
+h2,
+h3,
+h4,
 p {
-  font-weight: 400;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: var(--text-sec);
+  margin: 0;
+  max-width: 100%;
 }
 
-/* Utilities */
+.title-main {
+  font-size: clamp(28px, 8vw, 34px);
+  font-weight: 800;
+  color: var(--red);
+  letter-spacing: -0.5px;
+}
+
+.title-sub {
+  font-size: clamp(16px, 5vw, 19px);
+  font-weight: 700;
+  color: var(--dark);
+  margin-top: 6px;
+}
+
+.title-credit {
+  font-size: clamp(13px, 4vw, 14px);
+  font-weight: 400;
+  color: var(--text-sec);
+  margin-top: 4px;
+}
+
+.page-title {
+  font-size: clamp(24px, 7vw, 28px);
+  font-weight: 750;
+  color: var(--dark);
+  letter-spacing: -0.3px;
+
+  overflow-wrap: anywhere;
+}
+
+.page-desc {
+  font-size: 0.95rem;
+  color: var(--text-sec);
+  margin-top: 8px;
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   UTILITIES
+   ========================================================= */
+
 .text-red {
   color: var(--red);
 }
@@ -124,127 +250,832 @@ p {
   font-weight: 700;
 }
 
-/* Buttons */
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
 .btn-primary {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  height: 52px;
+
+  padding: 0 24px;
+
   background-color: var(--red);
   color: white;
+
   border: none;
-  border-radius: 12px;
-  padding: 14px 20px;
+  border-radius: 16px;
+
   font-size: 1rem;
   font-weight: 700;
-  width: 100%;
+
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.1s;
+
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
+
   display: flex;
   justify-content: center;
   align-items: center;
+
   gap: 8px;
+
+  box-shadow:
+    0 6px 20px rgba(229, 27, 35, 0.15);
+
+  box-sizing: border-box;
 }
 
 .btn-primary:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
   opacity: 0.9;
 }
 
 .btn-primary:disabled {
-  background-color: #ccc;
+  background-color: #D1D1D6;
+  box-shadow: none;
   cursor: not-allowed;
   transform: none;
+  color: #FFF;
 }
 
 .btn-secondary {
-  background-color: var(--glass);
-  backdrop-filter: blur(8px);
-  color: var(--dark);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  padding: 14px 20px;
-  font-size: 1rem;
-  font-weight: 700;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  height: 52px;
+
+  padding: 0 24px;
+
+  background: rgba(255, 255, 255, 0.5);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  color: var(--dark);
+
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+
+  font-size: 0.95rem;
+  font-weight: 700;
+
   cursor: pointer;
+
   display: flex;
   justify-content: center;
   align-items: center;
+
   gap: 8px;
+
+  transition:
+    transform 0.15s ease,
+    background 0.2s ease;
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.02);
+
+  box-sizing: border-box;
 }
 
-/* 3. GLASSMORPHISM PREMIUM */
+.btn-secondary:active {
+  transform: scale(0.97);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+
+/* =========================================================
+   PREMIUM GLASS CARD
+   ========================================================= */
+
 .glass-card {
-  background: var(--glass);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03);
   width: 100%;
-  /* Mencegah teks panjang menembus frame */
+  max-width: 100%;
+  min-width: 0;
+
+  padding: 20px;
+
+  background: var(--glass-bg);
+
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.04);
+
   word-wrap: break-word;
   overflow-wrap: break-word;
+
+  position: relative;
+
+  overflow: hidden;
+
+  box-sizing: border-box;
 }
 
-/* Inputs */
+
+/* Subtle top highlight */
+.glass-card::before {
+  content: '';
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+  right: 0;
+
+  width: 100%;
+  max-width: 100%;
+
+  height: 1px;
+
+  background:
+    linear-gradient(90deg,
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 1),
+      rgba(255, 255, 255, 0));
+
+  opacity: 0.4;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
 .input-text {
   width: 100%;
-  padding: 14px;
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
+  max-width: 100%;
+  min-width: 0;
+
+  padding: 16px;
+
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+
   font-size: 1rem;
-  background: rgba(255, 255, 255, 0.9);
+
+  background: rgba(255, 255, 255, 0.85);
+
   outline: none;
-  transition: border-color 0.2s;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01);
+
+  transition: all 0.2s ease;
+
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.01);
+
+  box-sizing: border-box;
 }
 
 .input-text:focus {
   border-color: var(--red);
+
+  background: #FFF;
+
+  box-shadow:
+    0 0 0 3px rgba(229, 27, 35, 0.1);
 }
 
-/* Badges */
+
+/* =========================================================
+   FILTER CHIPS
+   ========================================================= */
+
+.chip {
+  flex: 0 0 auto;
+
+  width: auto;
+  min-width: max-content;
+
+  padding: 10px 18px;
+
+  border-radius: 24px;
+
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+
+  background: rgba(255, 255, 255, 0.6);
+
+  border: 1px solid rgba(255, 255, 255, 0.8);
+
+  color: var(--text-sec);
+
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.02);
+
+  box-sizing: border-box;
+}
+
+.chip.active {
+  background: var(--red);
+  border-color: var(--red);
+  color: white;
+
+  box-shadow:
+    0 6px 16px rgba(229, 27, 35, 0.25);
+}
+
+
+/* =========================================================
+   BADGES
+   ========================================================= */
+
 .badge {
-  padding: 4px 8px;
+  padding: 4px 10px;
+
   border-radius: 8px;
+
   font-size: 0.75rem;
   font-weight: 700;
+
   display: inline-block;
+
   white-space: nowrap;
-  /* Mencegah badge terpotong */
+
+  max-width: 100%;
+
+  box-sizing: border-box;
 }
 
 .badge-sesuai {
-  background-color: #E6F4EA;
+  background-color: rgba(30, 142, 62, 0.1);
   color: #1E8E3E;
 }
 
 .badge-kurang {
-  background-color: #FCE8E6;
+  background-color: rgba(217, 48, 37, 0.1);
   color: #D93025;
 }
 
 .badge-lebih {
-  background-color: #E8F0FE;
+  background-color: rgba(26, 115, 232, 0.1);
   color: #1A73E8;
 }
 
 .badge-belum {
-  background-color: #F1F3F4;
+  background-color: rgba(95, 99, 104, 0.1);
   color: #5F6368;
 }
 
-/* Status text */
-.text-sesuai {
-  color: #1E8E3E;
-  font-weight: bold;
+
+/* =========================================================
+   RESULT PAGE
+   ========================================================= */
+
+/*
+  Seluruh halaman Hasil dibatasi ke viewport.
+  Tidak boleh ada child yang membuat halaman melebar.
+*/
+
+.result-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  margin: 0;
+  padding: 0;
+
+  overflow-x: hidden;
+
+  box-sizing: border-box;
 }
 
-.text-kurang {
-  color: #D93025;
-  font-weight: bold;
+
+/* ---------------------------------------------------------
+   Result Header
+   --------------------------------------------------------- */
+
+.result-header {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-bottom: 16px;
+
+  box-sizing: border-box;
 }
 
-.text-lebih {
-  color: #1A73E8;
-  font-weight: bold;
+.result-title {
+  flex: 1 1 auto;
+
+  width: 0;
+  min-width: 0;
+  max-width: 100%;
+
+  margin: 0;
+
+  font-size: 1.4rem;
+  line-height: 1.2;
+
+  font-weight: 800;
+
+  color: var(--dark);
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.result-export {
+  flex: 0 0 auto;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  height: 38px;
+
+  padding: 0 13px;
+
+  border: none;
+  border-radius: 14px;
+
+  background: rgba(229, 27, 35, 0.1);
+
+  color: var(--red);
+
+  font-size: 0.82rem;
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+}
+
+
+/* ---------------------------------------------------------
+   Result Search
+   --------------------------------------------------------- */
+
+.result-search {
+  position: relative;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  margin-bottom: 14px;
+
+  box-sizing: border-box;
+}
+
+.result-search-icon {
+  position: absolute;
+
+  left: 15px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  pointer-events: none;
+
+  z-index: 2;
+}
+
+.result-search-input {
+  display: block;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  height: 52px;
+
+  padding:
+    0 14px 0 44px;
+
+  box-sizing: border-box;
+}
+
+
+/* ---------------------------------------------------------
+   Result Filter
+   --------------------------------------------------------- */
+
+.result-filter-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  overflow: hidden;
+
+  margin-bottom: 4px;
+
+  box-sizing: border-box;
+}
+
+.result-filter {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  gap: 8px;
+
+  padding:
+    2px 1px 12px;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  box-sizing: border-box;
+
+  scrollbar-width: none;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+.result-filter::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* ---------------------------------------------------------
+   Result List
+   --------------------------------------------------------- */
+
+.result-list {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  gap: 14px;
+
+  box-sizing: border-box;
+}
+
+
+/* ---------------------------------------------------------
+   Result Card
+   --------------------------------------------------------- */
+
+.result-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  padding: 16px;
+
+  overflow: hidden;
+
+  box-sizing: border-box;
+}
+
+
+/* ---------------------------------------------------------
+   Result Card Header
+   --------------------------------------------------------- */
+
+.result-card-top {
+  display: flex;
+  align-items: flex-start;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  gap: 10px;
+
+  box-sizing: border-box;
+}
+
+.result-product {
+  flex: 1 1 auto;
+
+  width: 0;
+  min-width: 0;
+  max-width: 100%;
+
+  overflow: hidden;
+
+  box-sizing: border-box;
+}
+
+.result-product-name {
+  width: 100%;
+  max-width: 100%;
+
+  margin: 0 0 4px;
+
+  font-size: 0.95rem;
+  line-height: 1.35;
+
+  font-weight: 800;
+
+  color: var(--dark);
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.result-product-code {
+  width: 100%;
+  max-width: 100%;
+
+  margin: 0;
+
+  font-size: 0.78rem;
+
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace;
+
+  color: var(--text-sec);
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+
+/* ---------------------------------------------------------
+   Result Status Badge
+   --------------------------------------------------------- */
+
+.result-card-top .badge {
+  flex: 0 0 auto;
+
+  max-width: 48%;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* ---------------------------------------------------------
+   Result Statistics
+   --------------------------------------------------------- */
+
+.result-stats {
+  display: flex;
+
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  margin-top: 14px;
+  padding-top: 12px;
+
+  border-top:
+    1px solid rgba(0, 0, 0, 0.06);
+
+  box-sizing: border-box;
+}
+
+.result-stat {
+  flex: 1 1 0;
+
+  width: 0;
+  min-width: 0;
+
+  box-sizing: border-box;
+}
+
+.result-stat-left {
+  text-align: left;
+}
+
+.result-stat-center {
+  text-align: center;
+}
+
+.result-stat-right {
+  text-align: right;
+}
+
+.result-stat-label {
+  margin: 0;
+
+  font-size: 10px;
+  line-height: 1.2;
+
+  color: var(--text-sec);
+
+  font-weight: 700;
+
+  letter-spacing: 0.5px;
+
+  overflow-wrap: anywhere;
+}
+
+.result-stat-value {
+  margin: 3px 0 0;
+
+  font-size: 1.05rem;
+  line-height: 1.2;
+
+  font-weight: 800;
+
+  color: var(--dark);
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ---------------------------------------------------------
+   Result Empty State
+   --------------------------------------------------------- */
+
+.result-empty {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+
+  padding: 30px 10px;
+
+  text-align: center;
+
+  box-sizing: border-box;
+}
+
+.result-empty p {
+  margin: 0;
+
+  color: var(--text-sec);
+
+  font-size: 0.95rem;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   MICRO ANIMATIONS
+   ========================================================= */
+
+.page-animate {
+  animation:
+    fadeUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* =========================================================
+   MOBILE OPTIMIZATION
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .content-area {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .result-header {
+    gap: 8px;
+  }
+
+  .result-title {
+    font-size: 1.3rem;
+  }
+
+  .result-export {
+    height: 38px;
+
+    padding-left: 11px;
+    padding-right: 11px;
+
+    font-size: 0.78rem;
+  }
+
+  .result-card {
+    padding: 15px;
+  }
+}
+
+
+/* =========================================================
+   EXTRA SMALL PHONE
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+  .content-area {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .result-title {
+    font-size: 1.22rem;
+  }
+
+  .result-export {
+    height: 36px;
+
+    padding-left: 9px;
+    padding-right: 9px;
+
+    font-size: 0.75rem;
+  }
+
+  .result-card {
+    padding: 14px;
+  }
+
+  .result-card-top {
+    gap: 8px;
+  }
+
+  .result-product-name {
+    font-size: 0.88rem;
+  }
+
+  .result-product-code {
+    font-size: 0.74rem;
+  }
+
+  .result-card-top .badge {
+    max-width: 44%;
+
+    padding:
+      4px 8px;
+
+    font-size: 0.68rem;
+  }
+
+  .result-stat-label {
+    font-size: 9px;
+  }
+
+  .result-stat-value {
+    font-size: 1rem;
+  }
+}
+
+
+/* =========================================================
+   VERY NARROW SCREEN
+   ========================================================= */
+
+@media (max-width: 340px) {
+
+  .content-area {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .result-title {
+    font-size: 1.15rem;
+  }
+
+  .result-export span {
+    display: none;
+  }
+
+  .result-export {
+    width: 38px;
+    padding: 0;
+  }
+
+  .result-card {
+    padding: 12px;
+  }
 }

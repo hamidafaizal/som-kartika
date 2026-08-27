@@ -1,3 +1,4 @@
+
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UploadCloud, FileCheck, AlertCircle } from 'lucide-react';
@@ -14,7 +15,6 @@ const Import = () => {
     if (!file) return;
     
     setLoading(true);
-    // slight delay to allow UI to show loading state if large file
     setTimeout(async () => {
       await importFile(file);
       setLoading(false);
@@ -23,18 +23,24 @@ const Import = () => {
   };
 
   return (
-    <div>
-      <h1 className="mb-2">Import File SOM</h1>
-      <p className="mb-6">Masukkan file SOM untuk memulai stock opname.</p>
+    <div className="page-animate">
+      <h1 className="page-title mb-1">Import File SOM</h1>
+      <p className="page-desc mb-6">Masukkan file SOM untuk memulai stock opname.</p>
 
       <div 
         className="glass-card text-center mb-6"
-        style={{ border: '2px dashed var(--glass-border)', cursor: 'pointer' }}
+        style={{ 
+          border: '2px dashed rgba(229, 27, 35, 0.3)', 
+          cursor: 'pointer',
+          padding: '40px 20px',
+          backgroundColor: 'rgba(255,255,255,0.4)',
+          transition: 'background 0.2s'
+        }}
         onClick={() => fileInputRef.current?.click()}
       >
-        <UploadCloud size={48} color="var(--red)" style={{ margin: '0 auto', marginBottom: '16px' }} />
-        <h3 className="mb-2">Masukkan file SOM</h3>
-        <p style={{ fontSize: '0.85rem' }}>Format .XLS, .XLSX atau CSV</p>
+        <UploadCloud size={56} color="var(--red)" strokeWidth={1.5} style={{ margin: '0 auto', marginBottom: '16px' }} />
+        <h3 className="mb-2" style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--dark)' }}>Masukkan file SOM</h3>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-sec)' }}>Format .XLS, .XLSX atau CSV</p>
         
         <input 
           type="file" 
@@ -44,27 +50,29 @@ const Import = () => {
           onChange={handleFileChange}
         />
 
-        <div className="mt-4">
-          <button className="btn-secondary" style={{ padding: '10px' }} disabled={loading}>
+        <div className="mt-6">
+          <button className="btn-secondary" disabled={loading}>
             {loading ? 'Memproses...' : 'Pilih File'}
           </button>
         </div>
       </div>
 
       {fileName && (
-        <div className="glass-card mb-6" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <FileCheck size={32} color="#1E8E3E" />
-          <div>
-            <p className="font-bold text-dark" style={{ wordBreak: 'break-all' }}>{fileName}</p>
-            <p style={{ fontSize: '0.85rem', color: '#1E8E3E' }}>✓ File berhasil dibaca ({skuCount} SKU)</p>
+        <div className="glass-card mb-6" style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 20px' }}>
+          <div style={{ background: 'rgba(30, 142, 62, 0.1)', padding: '10px', borderRadius: '14px' }}>
+            <FileCheck size={28} color="#1E8E3E" />
+          </div>
+          <div style={{ flex: 1, overflow: 'hidden' }}>
+            <p className="font-bold text-dark" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '0.95rem' }}>{fileName}</p>
+            <p style={{ fontSize: '0.8rem', color: '#1E8E3E', marginTop: '4px', fontWeight: '600' }}>✓ {skuCount} SKU ditemukan</p>
           </div>
         </div>
       )}
 
       {!fileName && (
-        <div className="glass-card mb-6" style={{ display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: '#FFF3F3' }}>
-           <AlertCircle size={24} color="#D93025" />
-           <p style={{ fontSize: '0.85rem', color: '#D93025' }}>Belum ada file SOM yang di-import. Harap import file terlebih dahulu.</p>
+        <div className="glass-card mb-6" style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 20px', backgroundColor: 'rgba(217, 48, 37, 0.05)' }}>
+           <AlertCircle size={24} color="#D93025" style={{ flexShrink: 0 }} />
+           <p style={{ fontSize: '0.85rem', color: '#D93025', lineHeight: '1.4' }}>Belum ada file SOM yang di-import. Harap import file terlebih dahulu.</p>
         </div>
       )}
 

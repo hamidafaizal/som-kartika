@@ -3,125 +3,204 @@ import { Download, Search } from 'lucide-react';
 import { useStock } from '../hooks/useStockOpname';
 
 const Result = () => {
-  const { inventory, handleExport, getStats } = useStock();
-  const stats = getStats();
-  
+  const { inventory, handleExport } = useStock();
+
   const [filter, setFilter] = useState('SEMUA');
   const [search, setSearch] = useState('');
 
   const items = useMemo(() => Object.values(inventory), [inventory]);
 
   const filteredItems = useMemo(() => {
-    return items.filter(item => {
-      // Apply Filter
-      if (filter !== 'SEMUA') {
-        if (item.status !== filter) return false;
+    return items.filter((item) => {
+      if (filter !== 'SEMUA' && item.status !== filter) {
+        return false;
       }
-      
-      // Apply Search
-      if (search) {
-        const q = search.toLowerCase();
-        if (!item.kode.toLowerCase().includes(q) && !item.deskripsi.toLowerCase().includes(q)) {
+
+      if (search.trim()) {
+        const q = search.toLowerCase().trim();
+
+        const kode = String(item.kode || '').toLowerCase();
+        const deskripsi = String(item.deskripsi || '').toLowerCase();
+
+        if (!kode.includes(q) && !deskripsi.includes(q)) {
           return false;
         }
       }
+
       return true;
     });
   }, [items, filter, search]);
 
-  const filterOptions = ['SEMUA', 'BELUM DIHITUNG', 'SESUAI', 'KURANG', 'LEBIH'];
+  const filterOptions = [
+    'SEMUA',
+    'BELUM DIHITUNG',
+    'SESUAI',
+    'KURANG',
+    'LEBIH',
+  ];
+
+  const getFilterLabel = (opt) => {
+    if (opt === 'SEMUA') return 'Semua';
+    if (opt === 'BELUM DIHITUNG') return 'Belum Dihitung';
+
+    return opt.charAt(0) + opt.slice(1).toLowerCase();
+  };
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} className="mb-4">
-        <h1 style={{ fontSize: '1.25rem', marginBottom: 0 }}>Hasil Opname</h1>
-        <button 
+    <div className="result-page page-animate">
+
+      {/* =========================
+          HEADER
+      ========================= */}
+      <div className="result-header">
+        <h1 className="result-title">
+          Hasil Opname
+        </h1>
+
+        <button
+          type="button"
           onClick={handleExport}
-          style={{ background: 'none', border: 'none', color: 'var(--red)', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold', cursor: 'pointer' }}
+          className="result-export"
         >
-          <Download size={18} /> Export
+          <Download size={16} strokeWidth={2.5} />
+          <span>Export</span>
         </button>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '12px', msOverflowStyle: 'none', scrollbarWidth: 'none' }} className="mb-2 hide-scroll">
-        {filterOptions.map(opt => (
-          <button 
-            key={opt}
-            onClick={() => setFilter(opt)}
-            style={{ 
-              whiteSpace: 'nowrap',
-              padding: '6px 12px', 
-              borderRadius: '20px', 
-              border: '1px solid var(--glass-border)',
-              backgroundColor: filter === opt ? 'var(--dark)' : 'white',
-              color: filter === opt ? 'white' : 'var(--text-sec)',
-              fontWeight: '500',
-              fontSize: '0.8rem',
-              cursor: 'pointer'
-            }}
-          >
-            {opt === 'SEMUA' ? 'Semua' : opt === 'BELUM DIHITUNG' ? 'Belum Dihitung' : opt.charAt(0) + opt.slice(1).toLowerCase()}
-          </button>
-        ))}
-      </div>
+      {/* =========================
+          SEARCH
+      ========================= */}
+      <div className="result-search">
+        <Search
+          size={19}
+          color="var(--text-sec)"
+          className="result-search-icon"
+        />
 
-      <div style={{ position: 'relative' }} className="mb-6">
-        <Search size={18} color="var(--text-sec)" style={{ position: 'absolute', top: '50%', left: '12px', transform: 'translateY(-50%)' }} />
-        <input 
-          type="text" 
-          placeholder="Search kode / nama barang..." 
-          className="input-text"
-          style={{ paddingLeft: '38px', borderRadius: '12px' }}
+        <input
+          type="text"
+          placeholder="Cari kode atau nama barang..."
+          className="input-text result-search-input"
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {/* =========================
+          FILTER
+      ========================= */}
+      <div className="result-filter-wrapper">
+        <div className="result-filter">
+          {filterOptions.map((opt) => (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => setFilter(opt)}
+              className={`chip ${filter === opt ? 'active' : ''}`}
+            >
+              {getFilterLabel(opt)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* =========================
+          LIST BARANG
+      ========================= */}
+      <div className="result-list">
+
         {filteredItems.length === 0 ? (
-          <div className="text-center py-6">
-            <p>Tidak ada barang yang sesuai kriteria.</p>
+          <div className="result-empty">
+            <p>
+              Tidak ada barang yang sesuai kriteria.
+            </p>
           </div>
         ) : (
-          filteredItems.map(item => (
-            <div key={item.kode} className="glass-card" style={{ padding: '16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                <p className="font-bold text-dark" style={{ flex: 1, paddingRight: '12px', lineHeight: '1.3', fontSize: '0.9rem' }}>{item.deskripsi}</p>
-                <span className={`badge ${
-                  item.status === 'SESUAI' ? 'badge-sesuai' : 
-                  item.status === 'KURANG' ? 'badge-kurang' : 
-                  item.status === 'LEBIH' ? 'badge-lebih' : 'badge-belum'
-                }`}>
-                  {item.status}
-                </span>
-              </div>
-              <p style={{ fontSize: '0.8rem', fontFamily: 'monospace', color: 'var(--text-sec)', marginBottom: '12px' }}>{item.kode}</p>
+          filteredItems.map((item) => (
+            <div
+              key={item.kode}
+              className="glass-card result-card"
+            >
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--glass-border)', paddingTop: '12px' }}>
-                <div className="text-center" style={{ flex: 1 }}>
-                  <p style={{ fontSize: '0.7rem', color: 'var(--text-sec)' }}>SISTEM</p>
-                  <p className="font-bold">{item.stokSistem}</p>
-                </div>
-                <div className="text-center" style={{ flex: 1, borderLeft: '1px solid var(--glass-border)', borderRight: '1px solid var(--glass-border)' }}>
-                  <p style={{ fontSize: '0.7rem', color: 'var(--text-sec)' }}>FISIK</p>
-                  <p className="font-bold text-dark">{item.stokFisik}</p>
-                </div>
-                <div className="text-center" style={{ flex: 1 }}>
-                  <p style={{ fontSize: '0.7rem', color: 'var(--text-sec)' }}>SELISIH</p>
-                  <p className={`font-bold ${item.selisih < 0 ? 'text-kurang' : item.selisih > 0 ? 'text-lebih' : 'text-sesuai'}`}>
-                    {item.selisih > 0 ? `+${item.selisih}` : item.selisih}
+              {/* Nama + Status */}
+              <div className="result-card-top">
+
+                <div className="result-product">
+                  <p className="result-product-name">
+                    {item.deskripsi}
+                  </p>
+
+                  <p className="result-product-code">
+                    {item.kode}
                   </p>
                 </div>
+
+                <span
+                  className={`badge ${item.status === 'SESUAI'
+                      ? 'badge-sesuai'
+                      : item.status === 'KURANG'
+                        ? 'badge-kurang'
+                        : item.status === 'LEBIH'
+                          ? 'badge-lebih'
+                          : 'badge-belum'
+                    }`}
+                >
+                  {item.status}
+                </span>
+
+              </div>
+
+              {/* Statistik */}
+              <div className="result-stats">
+
+                <div className="result-stat result-stat-left">
+                  <p className="result-stat-label">
+                    SISTEM
+                  </p>
+
+                  <p className="result-stat-value">
+                    {item.stokSistem}
+                  </p>
+                </div>
+
+                <div className="result-stat result-stat-center">
+                  <p className="result-stat-label">
+                    FISIK
+                  </p>
+
+                  <p className="result-stat-value">
+                    {item.stokFisik}
+                  </p>
+                </div>
+
+                <div className="result-stat result-stat-right">
+                  <p className="result-stat-label">
+                    SELISIH
+                  </p>
+
+                  <p
+                    className="result-stat-value"
+                    style={{
+                      color:
+                        item.selisih < 0
+                          ? '#D93025'
+                          : item.selisih > 0
+                            ? '#1A73E8'
+                            : '#1E8E3E',
+                    }}
+                  >
+                    {item.selisih > 0
+                      ? `+${item.selisih}`
+                      : item.selisih}
+                  </p>
+                </div>
+
               </div>
             </div>
           ))
         )}
+
       </div>
-      
-      {/* Scroll Hiding CSS embed */}
-      <style>{`
-        .hide-scroll::-webkit-scrollbar { display: none; }
-      `}</style>
     </div>
   );
 };
