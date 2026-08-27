@@ -9,10 +9,10 @@ export const readSomFile = (file) => {
         const workbook = XLSX.read(data, { type: 'array' });
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
-        
+
         // Read as array of arrays to find header row dynamically
         const json = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
-        
+
         if (json.length === 0) {
           throw new Error("File Excel kosong.");
         }
@@ -20,29 +20,43 @@ export const readSomFile = (file) => {
         let headerRowIndex = -1;
         let colMap = { kode: -1, deskripsi: -1, stok: -1 };
 
-        // Find the header row
+        // Cari baris yang mengandung header
         for (let i = 0; i < Math.min(20, json.length); i++) {
           const row = json[i];
-          let foundKode = false, foundStok = false;
-          
+          let foundDeskripsi = false;
+
           for (let j = 0; j < row.length; j++) {
             const cellVal = String(row[j]).toLowerCase();
-            if (cellVal.includes('kode') || cellVal.includes('barcode')) {
-              colMap.kode = j; foundKode = true;
+
+            if (cellVal.includes('kode') || cellVal.includes('barcode') || cellVal.includes('item')) {
+              colMap.kode = j;
             } else if (cellVal.includes('deskripsi') || cellVal.includes('nama') || cellVal.includes('barang')) {
               colMap.deskripsi = j;
-            } else if (cellVal.includes('stok') || cellVal.includes('system') || cellVal.match(/^g-/)) {
-              colMap.stok = j; foundStok = true;
+              foundDeskripsi = true;
+            } else if (cellVal.includes('stok') || cellVal.includes('system') || cellVal.includes('qty') || cellVal.match(/^g-/)) {
+              colMap.stok = j;
             }
           }
-          if (foundKode) {
+
+          // Jika kita menemukan tanda-tanda header row (deskripsi / stok)
+          if (colMap.kode !== -1 || foundDeskripsi || colMap.stok !== -1) {
             headerRowIndex = i;
-            break;
+
+            // LOGIKA KHUSUS: 
+            // Jika header 'Kode Barang' kosong (kasus format Accurate), 
+            // maka asumsikan kolom kode berada tepat 1 kolom di sebelah kiri kolom 'Deskripsi'
+            if (colMap.kode === -1 && colMap.deskripsi > 0) {
+              colMap.kode = colMap.deskripsi - 1;
+            }
+
+            if (colMap.kode !== -1 && colMap.stok !== -1) {
+              break; // Header row ditemukan lengkap
+            }
           }
         }
 
         if (headerRowIndex === -1 || colMap.kode === -1) {
-          throw new Error("Format tidak dikenali. Pastikan ada kolom 'Kode Barang' dan 'Stok'.");
+          throw new Error("Format tidak dikenali. Pastikan ada kolom 'Kode' dan 'Stok' (atau G-11).");
         }
 
         let parsedData = {};
@@ -102,7 +116,7 @@ export const exportToExcel = (dataObj) => {
   const dd = String(date.getDate()).padStart(2, '0');
   const hh = String(date.getHours()).padStart(2, '0');
   const mins = String(date.getMinutes()).padStart(2, '0');
-  
+
   const filename = `Hasil_SOM_Kartika_${yyyy}${mm}${dd}_${hh}${mins}.xlsx`;
 
   XLSX.writeFile(workbook, filename);

@@ -9,17 +9,15 @@ const Home = () => {
 
   return (
     <div className="page-animate">
-      <div className="text-center mb-6">
+      <div className="text-center mb-6 mt-4">
+        <img
+          src="/logo.png"
+          alt="Logo SOM"
+          style={{ width: '120px', height: 'auto', marginBottom: '16px' }}
+        />
         <h1 className="text-red" style={{ letterSpacing: '-0.5px' }}>SOM</h1>
         <p className="font-bold" style={{ color: 'var(--dark)' }}>Kartika Accessories Ponorogo</p>
         <p style={{ fontSize: '0.8rem' }}>By Hamida</p>
-      </div>
-
-      <div className="mt-6 mb-6">
-        <h2 style={{ fontSize: '1.8rem', lineHeight: '1.2', marginBottom: '8px' }}>
-          Siap melakukan<br/>penghitungan stok?
-        </h2>
-        <p>Import data SOM, lalu scan barang fisik. Jumlah akan dihitung otomatis.</p>
       </div>
 
       <button className="btn-primary mb-6" onClick={() => navigate(skuCount > 0 ? '/scan' : '/import')}>
@@ -28,7 +26,7 @@ const Home = () => {
 
       <div className="glass-card">
         <h3 className="mb-4" style={{ fontSize: '1rem' }}>Ringkasan Opname</h3>
-        
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <div>
             <p style={{ fontSize: '0.75rem', fontWeight: 'bold', textTransform: 'uppercase' }}>Total SKU</p>

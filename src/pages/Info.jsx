@@ -16,6 +16,11 @@ const Info = () => {
       <h1 className="mb-6">Informasi Aplikasi</h1>
 
       <div className="glass-card mb-6 text-center">
+        <img
+          src="/logo.png"
+          alt="Logo SOM"
+          style={{ width: '90px', height: 'auto', marginBottom: '12px' }}
+        />
         <h2 className="text-red" style={{ fontSize: '1.25rem', letterSpacing: '-0.5px' }}>SOM</h2>
         <p className="font-bold text-dark mb-1">Kartika Accessories Ponorogo</p>
         <p style={{ fontSize: '0.85rem' }}>By Hamida</p>
@@ -33,14 +38,14 @@ const Info = () => {
         <p style={{ fontSize: '0.85rem', marginBottom: '16px', color: '#555' }}>
           Tindakan ini akan menghapus semua progress hitungan saat ini dan mengosongkan data SOM. Pastikan Anda telah melakukan Export Excel sebelumnya.
         </p>
-        <button 
+        <button
           onClick={handleReset}
-          style={{ 
-            width: '100%', 
-            padding: '12px', 
-            backgroundColor: 'white', 
-            border: '1px solid #D93025', 
-            color: '#D93025', 
+          style={{
+            width: '100%',
+            padding: '12px',
+            backgroundColor: 'white',
+            border: '1px solid #D93025',
+            color: '#D93025',
             borderRadius: '12px',
             fontWeight: 'bold',
             display: 'flex',
